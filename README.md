@@ -11,7 +11,6 @@
 - **Admin Dashboard**: Complete content management system with Supabase integration
 - **Customer Testimonials**: Dynamic review display with ratings and location data
 - **Contact Forms**: Lead generation with email notifications via SendGrid
-- **WordPress Integration**: Optional plugin for WordPress sites
 - **Dark Mode**: Modern dark theme with orange accent colors
 - **Mobile-First Design**: Fully responsive across all devices
 
@@ -169,18 +168,6 @@ The application is configured for Bolt platform deployment with:
    ```bash
    npm start
    ```
-
-### WordPress Plugin Deployment
-
-1. **Build the WordPress plugin**
-   ```bash
-   npm run build:wordpress
-   ```
-
-2. **Upload to WordPress**
-   - ZIP the `wordpress-plugin` folder
-   - Upload via WordPress admin or FTP
-   - Activate and use `[fairfence_app]` shortcode
 
 ## 🔧 Configuration
 

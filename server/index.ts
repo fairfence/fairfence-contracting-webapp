@@ -187,9 +187,6 @@ process.on('unhandledRejection', (reason, promise) => {
         try {
           const configStatus = configManager.getStatus();
           log(`Configuration mode: ${configStatus.mode}`);
-          if (configStatus.mode === 'wordpress') {
-            log(`WordPress API: ${getConfig('WORDPRESS_API_URL')}`);
-          }
           log(`Service role key available: ${configStatus.hasServiceKey}`);
         } catch (statusError) {
           // Ignore status logging errors

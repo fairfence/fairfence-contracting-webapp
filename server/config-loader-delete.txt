@@ -1,0 +1,2 @@
+This file is a placeholder. The config-loader.ts file should be deleted manually or the build will fail.
+The config-loader.ts has been replaced by the simplified config.ts file.

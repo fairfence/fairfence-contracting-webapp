@@ -133,8 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const config = {
         mode: status.mode,
         initialized: status.initialized,
-        hasServiceKey: status.hasServiceKey,
-        wordpressUrl: status.mode === 'wordpress' ? configManager.getAll().WORDPRESS_API_URL : null
+        hasServiceKey: status.hasServiceKey
       };
       res.json({ success: true, config });
     } catch (error) {
