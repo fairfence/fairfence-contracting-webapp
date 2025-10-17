@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import { setupAuth } from "./auth";
 import { setupVite, serveStatic, log } from "./vite";
@@ -7,6 +8,9 @@ import configManager, { getConfig } from "./config";
 import { initializeDatabase } from "./db";
 
 const app = express();
+
+// Enable gzip compression for all responses
+app.use(compression());
 
 // Basic Express middleware setup
 app.use(express.json());
