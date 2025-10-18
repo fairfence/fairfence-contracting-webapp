@@ -1,2 +1,3 @@
-# Not used - deploying via Bolt cloud hosting
-# This file can be safely ignored or deleted
+[build]
+command = "npx vite build"
+publish = "/home/project/dist/public"
