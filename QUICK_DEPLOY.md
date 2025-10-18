@@ -1,45 +1,14 @@
-# 🚀 Quick Deploy Guide
+# 🚀 Quick Deploy Guide - Bolt Cloud Hosting
 
 ## ✅ Status: Ready to Deploy
 
-All Edge Functions are deployed and the build is verified. Follow these steps to deploy your application.
+All Edge Functions are deployed and the build is verified. Your application is ready for Bolt cloud hosting.
 
 ---
 
-## 1️⃣ Choose Your Platform
+## 1️⃣ Set Environment Variables in Bolt
 
-**Which platform are you deploying to?**
-
-- [ ] Netlify → Use `netlify.toml` ✅ (already created)
-- [ ] Vercel → Use `vercel.json` ✅ (already created)
-- [ ] Render → Use `render.yaml` ✅ (already created)
-
----
-
-## 2️⃣ Commit Configuration File
-
-```bash
-# Commit the config for YOUR platform:
-
-# For Netlify:
-git add netlify.toml
-
-# For Vercel:
-git add vercel.json
-
-# For Render:
-git add render.yaml
-
-# Then commit and push:
-git commit -m "Add deployment configuration"
-git push
-```
-
----
-
-## 3️⃣ Set Environment Variables
-
-In your platform dashboard, add these:
+In your Bolt dashboard, add these environment variables:
 
 ```bash
 SUPABASE_URL=https://ahvshpeekjghncygkzws.supabase.co
@@ -51,41 +20,33 @@ SESSION_SECRET=your-random-secure-string-here
 NODE_ENV=production
 ```
 
-*(Your actual values are in `.env` file)*
+**⚠️ Get these values from your `.env` file**
 
 ---
 
-## 4️⃣ Deploy
+## 2️⃣ Click "Publish" in Bolt
 
-Push your code - the platform will automatically:
-
-1. ✅ Detect your config file
-2. ✅ Run `npm run build` (both frontend + backend)
-3. ✅ Deploy to production
-4. ✅ Start your server
+Bolt will automatically:
+1. ✅ Install dependencies (`npm install`)
+2. ✅ Build your application (`npm run build`)
+3. ✅ Start the server (`npm run start`)
 
 ---
 
-## 5️⃣ Verify Deployment
+## 3️⃣ Verify Deployment
 
 After deployment, test these URLs:
 
 ```bash
 # Health check
-https://your-app.com/api/status
+https://your-app.bolt.cloud/api/status
 
 # Pricing endpoint (should use Edge Function)
-https://your-app.com/api/pricing
+https://your-app.bolt.cloud/api/pricing
 
 # Frontend
-https://your-app.com/
+https://your-app.bolt.cloud/
 ```
-
-**Look for these in logs:**
-- ✅ "npm run build" command
-- ✅ Vite build output
-- ✅ ESBuild output
-- ✅ Both `dist/index.js` and `dist/public/` created
 
 ---
 
@@ -101,12 +62,11 @@ Your application will:
 
 ## 📚 Need More Info?
 
-- **Full details:** See `FINAL_SUMMARY.md`
-- **Build issues:** See `BUILD_INVESTIGATION.md`
-- **Edge Functions:** See `DEPLOYMENT_QUICKSTART.md`
+See **`BOLT_DEPLOYMENT.md`** for complete deployment documentation.
 
 ---
 
 **Status:** ✅ READY TO DEPLOY
 **Build:** ✅ VERIFIED
 **Edge Functions:** ✅ DEPLOYED
+**Platform:** Bolt Cloud Hosting
