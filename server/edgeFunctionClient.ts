@@ -15,15 +15,24 @@ interface EdgeFunctionCallOptions extends RetryOptions {
 }
 
 export class EdgeFunctionClient {
-  private baseUrl: string;
-  private anonKey: string;
+  private baseUrl: string | null = null;
+  private anonKey: string | null = null;
+  private initialized = false;
 
   constructor() {
-    this.baseUrl = configManager.get('SUPABASE_URL') || '';
-    this.anonKey = configManager.get('SUPABASE_ANON_KEY') || '';
+    // Don't initialize here - wait for lazy init
+  }
 
-    if (!this.baseUrl || !this.anonKey) {
-      throw new Error('Supabase configuration missing for Edge Function client');
+  private ensureInitialized() {
+    if (!this.initialized) {
+      this.baseUrl = configManager.get('SUPABASE_URL') || '';
+      this.anonKey = configManager.get('SUPABASE_ANON_KEY') || '';
+
+      if (!this.baseUrl || !this.anonKey) {
+        throw new Error('Supabase configuration missing for Edge Function client');
+      }
+
+      this.initialized = true;
     }
   }
 
@@ -81,6 +90,9 @@ export class EdgeFunctionClient {
     functionName: string,
     options: EdgeFunctionCallOptions = {}
   ): Promise<T> {
+    // Ensure config is loaded before using it
+    this.ensureInitialized();
+
     const {
       method = 'GET',
       headers = {},
