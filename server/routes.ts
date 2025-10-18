@@ -176,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // API endpoint to fetch pricing data (with caching)
+  // API endpoint to fetch pricing data (using Edge Function with caching)
   app.get('/api/pricing', async (req, res) => {
     try {
       // Check cache first
@@ -186,105 +186,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ success: true, data: pricingCache, cached: true });
       }
 
-      console.log('Fetching fresh pricing from database...');
-      
-      // Fetch all pricing data from the database
-      const rawPricingData = await fetchAllPricing();
-      
-      // Map service types to simplified keys
-      const serviceTypeMapping: Record<string, string> = {
-        'Timber Slat Fence': 'timber',
-        'Timber Fence': 'timber',
-        'Aluminium Fence': 'aluminum',
-        'Aluminum Fence': 'aluminum',
-        'PVC/Vinyl Fence': 'pvc',
-        'PVC Fence': 'pvc',
-        'Vinyl Fence': 'pvc',
-        'Rural Fence': 'rural',
-        'Rural Fencing': 'rural'
-      };
-      
-      // Transform the data to match frontend format
-      const transformedPricing: any = {};
-      let hasData = false;
-      
-      if (rawPricingData && rawPricingData.length > 0) {
-        hasData = true;
-        
-        // Group by fence type and height
-        for (const row of rawPricingData) {
-          // Find the simplified fence type key
-          let fenceTypeKey = 'timber'; // default
-          
-          // Try exact match first
-          if (serviceTypeMapping[row.servicetype]) {
-            fenceTypeKey = serviceTypeMapping[row.servicetype];
-          } else {
-            // Try case-insensitive partial match
-            const serviceTypeLower = row.servicetype?.toLowerCase() || '';
-            if (serviceTypeLower.includes('timber')) {
-              fenceTypeKey = 'timber';
-            } else if (serviceTypeLower.includes('aluminium') || serviceTypeLower.includes('aluminum')) {
-              fenceTypeKey = 'aluminum';
-            } else if (serviceTypeLower.includes('pvc') || serviceTypeLower.includes('vinyl')) {
-              fenceTypeKey = 'pvc';
-            } else if (serviceTypeLower.includes('rural')) {
-              fenceTypeKey = 'rural';
-            }
-          }
-          
-          // Initialize fence type object if not exists
-          if (!transformedPricing[fenceTypeKey]) {
-            transformedPricing[fenceTypeKey] = {
-              perMeter: true
-            };
-          }
-          
-          // Add the height and price (using totallmincgst)
-          const height = String(row.height); // Convert to string for key
-          const price = parseFloat(row.totallmincgst) || 0;
-          
-          transformedPricing[fenceTypeKey][height] = price;
-        }
-        
-        // Add descriptions from fallback pricing
-        for (const [key, value] of Object.entries(fallbackPricing)) {
-          if (transformedPricing[key] && typeof value === 'object') {
-            const fallbackData = value as any;
-            if (fallbackData.description) {
-              transformedPricing[key].description = fallbackData.description;
-            }
-            if (fallbackData.materials) {
-              transformedPricing[key].materials = fallbackData.materials;
-            }
-          }
-        }
+      console.log('Fetching fresh pricing from Edge Function...');
+
+      // Import Edge Function client
+      const { edgeFunctionClient } = await import('./edgeFunctionClient');
+
+      // Fetch pricing data from Edge Function
+      const response = await edgeFunctionClient.getPricing();
+
+      if (response && response.data) {
+        // Update cache
+        pricingCache = response.data;
+        cacheTimestamp = now;
+
+        res.json({ success: true, data: response.data, cached: false, source: 'edge-function' });
+      } else {
+        // Fallback if Edge Function returns unexpected format
+        const pricingData = {
+          tables: [],
+          data: {},
+          fallback: true,
+          pricing: fallbackPricing,
+          source: 'local-fallback-invalid-response'
+        };
+
+        res.json({ success: true, data: pricingData, cached: false });
       }
-      
-      // Prepare response data
-      const pricingData: any = {
-        tables: [{ table_name: 'pricing', table_schema: 'public' }],
-        data: { pricing: rawPricingData },
-        fallback: !hasData,
-        pricing: hasData ? transformedPricing : fallbackPricing
-      };
-
-      // Update cache
-      pricingCache = pricingData;
-      cacheTimestamp = now;
-
-      res.json({ success: true, data: pricingData, cached: false });
     } catch (error) {
-      console.error('Error fetching pricing data:', error);
-      
+      console.error('Error fetching pricing data from Edge Function:', error);
+
       // On error, use fallback pricing
       const pricingData = {
         tables: [],
         data: {},
         fallback: true,
-        pricing: fallbackPricing
+        pricing: fallbackPricing,
+        source: 'local-fallback-error'
       };
-      
+
       res.json({ success: true, data: pricingData, cached: false });
     }
   });
