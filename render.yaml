@@ -1,2 +1,27 @@
-# Not used - deploying via Bolt cloud hosting
-# This file can be safely ignored or deleted
+services:
+  - type: web
+    name: fairfence-contracting
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 20.16.11
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: SENDGRID_FROM
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+    healthCheckPath: /api/status
+    autoDeploy: true
